@@ -261,6 +261,19 @@ test("native home links remain available when Swup cannot navigate", async () =>
 	assert.doesNotMatch(navbar, /data-no-swup/);
 });
 
+test("content navigation has a dedicated transition and reduced-motion fallback", async () => {
+	const layout = await read("src/layouts/MainGridLayout.astro");
+	const transitions = await read("src/styles/transition.css");
+
+	assert.match(layout, /transition-swup-content/);
+	assert.match(layout, /id="route-progress"/);
+	assert.match(transitions, /\.transition-swup-content/);
+	assert.match(transitions, /html\.is-changing[\s\S]*?route-progress/);
+	const reducedMotion = transitions.match(/@media \(prefers-reduced-motion: reduce\) \{[\s\S]*?\n\}/)?.[0] ?? "";
+	assert.match(reducedMotion, /\.transition-swup-content/);
+	assert.match(reducedMotion, /transform:\s*none\s*!important/);
+});
+
 test("home main content surround does not blur the background", async () => {
 	const styles = await read("src/styles/main.css");
 	const surroundRule = styles.match(/\[data-home-page="true"\] #main-grid::before \{[\s\S]*?\n\}/)?.[0] ?? "";

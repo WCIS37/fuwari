@@ -6,6 +6,57 @@ html.is-animating .transition-swup-fade {
     @apply opacity-0 translate-y-4
 }
 
+.transition-swup-content {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+    transition: opacity 280ms ease, transform 280ms cubic-bezier(.22, 1, .36, 1);
+}
+
+html.is-changing .transition-swup-content {
+    opacity: 0;
+    transform: translate3d(-0.75rem, -0.35rem, 0);
+}
+
+html.is-rendering .transition-swup-content {
+    transform: translate3d(0.75rem, 0.35rem, 0);
+}
+
+#route-progress {
+    position: fixed;
+    z-index: 80;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    opacity: 0;
+    transform: scaleX(0.12);
+    transform-origin: left center;
+    background: linear-gradient(90deg, transparent, oklch(0.72 0.13 190), oklch(0.7 0.12 245), transparent);
+    transition: opacity 160ms ease, transform 420ms cubic-bezier(.22, 1, .36, 1);
+    pointer-events: none;
+}
+
+html.is-changing #route-progress {
+    opacity: 0.72;
+    transform: scaleX(0.78);
+}
+
+html.is-rendering #route-progress {
+    opacity: 0;
+    transform: scaleX(1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .transition-swup-content {
+        transform: none !important;
+        transition-duration: 80ms;
+    }
+
+    #route-progress {
+        transition-duration: 80ms;
+    }
+}
+
 /* Fade-in animations for components */
 @keyframes fade-in-up {
     0% {

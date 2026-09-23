@@ -1,15 +1,26 @@
 ---
 import { Icon } from "astro-icon/components";
-import { navBarConfig, siteConfig } from "../config";
+import compassIcon from "@assets/icons/compass.svg?url";
+import { navBarConfig } from "../config";
 import { LinkPresets } from "../constants/link-presets";
 import { LinkPreset, type NavBarLink } from "../types/config";
 import { url } from "../utils/url-utils";
+import { getSortedPostsList } from "../utils/content-utils";
 import LightDarkSwitch from "./LightDarkSwitch.svelte";
 import Search from "./Search.svelte";
-import DisplaySettings from "./widget/DisplaySettings.svelte";
 import NavMenuPanel from "./widget/NavMenuPanel.astro";
 
 const className = Astro.props.class;
+const randomPostUrls = (await getSortedPostsList())
+	.filter((post) => post.data.draft !== true)
+	.map((post) => url(`/posts/${post.slug}/`));
+
+const getPrimaryRoute = (path: string) => {
+	if (path === "/") return "home";
+	if (path === "/archive/") return "archive";
+	if (path === "/about/") return "about";
+	return undefined;
+};
 
 let links: NavBarLink[] = navBarConfig.links.map(
 	(item: NavBarLink | LinkPreset): NavBarLink => {
@@ -28,12 +39,13 @@ let links: NavBarLink[] = navBarConfig.links.map(
         <a href={url('/')} class="btn-plain scale-animation rounded-lg h-[3.25rem] px-5 font-bold active:scale-95">
             <div class="flex flex-row text-[var(--primary)] items-center text-md">
                 <Icon name="material-symbols:home-outline-rounded" class="text-[1.75rem] mb-1 mr-2" />
-                {siteConfig.title}
+                Minerhut
             </div>
         </a>
         <div class="hidden md:flex">
             {links.map((l) => {
                 return <a aria-label={l.name} href={l.external ? l.url : url(l.url)} target={l.external ? "_blank" : null}
+                          data-primary-route={l.external ? undefined : getPrimaryRoute(l.url)}
                           class="btn-plain scale-animation rounded-lg h-11 font-bold px-5 active:scale-95"
                 >
                     <div class="flex items-center">
@@ -46,18 +58,22 @@ let links: NavBarLink[] = navBarConfig.links.map(
         <div class="flex">
             <!--<SearchPanel client:load>-->
             <Search client:only="svelte"></Search>
-            {!siteConfig.themeColor.fixed && (
-                    <button aria-label="Display Settings" class="btn-plain scale-animation rounded-lg h-11 w-11 active:scale-90" id="display-settings-switch">
-                        <Icon name="material-symbols:palette-outline" class="text-[1.25rem]"></Icon>
-                    </button>
-            )}
+            <button
+                aria-label="随机文章"
+                title={randomPostUrls.length > 0 ? "随机阅读一篇文章" : "暂无可阅读文章"}
+                class="btn-plain scale-animation rounded-lg h-11 w-11 active:scale-90 disabled:opacity-35 disabled:cursor-default"
+                id="random-post-switch"
+                data-post-urls={JSON.stringify(randomPostUrls)}
+                disabled={randomPostUrls.length === 0}
+            >
+                <img src={compassIcon} class="navbar-tool-icon" alt="" aria-hidden="true" />
+            </button>
             <LightDarkSwitch client:only="svelte"></LightDarkSwitch>
             <button aria-label="Menu" name="Nav Menu" class="btn-plain scale-animation rounded-lg w-11 h-11 active:scale-90 md:!hidden" id="nav-menu-switch">
                 <Icon name="material-symbols:menu-rounded" class="text-[1.25rem]"></Icon>
             </button>
         </div>
         <NavMenuPanel links={links}></NavMenuPanel>
-        <DisplaySettings client:only="svelte"></DisplaySettings>
     </div>
 </div>
 
@@ -80,13 +96,13 @@ function loadButtonScript() {
         };
     }
 
-    let settingBtn = document.getElementById("display-settings-switch");
-    if (settingBtn) {
-        settingBtn.onclick = function () {
-            let settingPanel = document.getElementById("display-setting");
-            if (settingPanel) {
-                settingPanel.classList.toggle("float-panel-closed");
-            }
+    const randomPostBtn = document.getElementById("random-post-switch");
+    if (randomPostBtn instanceof HTMLButtonElement) {
+        const postUrls = JSON.parse(randomPostBtn.dataset.postUrls ?? "[]") as string[];
+        randomPostBtn.onclick = function () {
+            if (postUrls.length === 0) return;
+            const randomIndex = Math.floor(Math.random() * postUrls.length);
+            window.location.assign(postUrls[randomIndex]);
         };
     }
 

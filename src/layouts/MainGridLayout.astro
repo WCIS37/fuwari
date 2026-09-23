@@ -47,6 +47,7 @@ const mainPanelTop = "15.5rem";
         <Navbar></Navbar>
     </div>
 </div>
+<div id="route-progress" aria-hidden="true"></div>
 
 <header id="home-atmosphere" class="home-atmosphere" aria-labelledby="home-atmosphere-title">
         <img class="home-atmosphere-base home-atmosphere-base-day" src={homeAtmosphereBase.src} alt="" aria-hidden="true" />
@@ -141,7 +142,7 @@ setupHomeAtmosphere();
 
             <SideBar class="mb-4 row-start-2 row-end-3 col-span-2 lg:row-start-1 lg:row-end-2 lg:col-span-1 lg:max-w-[17.5rem] onload-animation" headings={headings}></SideBar>
 
-            <main id="swup-container" class="transition-swup-fade col-span-2 lg:col-span-1 overflow-hidden">
+            <main id="swup-container" class="transition-swup-content col-span-2 lg:col-span-1 overflow-hidden">
                 <div id="content-wrapper" class="onload-animation">
                     <!-- the overflow-hidden here prevent long text break the layout-->
                     <!-- make id different from windows.swup global property -->

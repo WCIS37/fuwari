@@ -202,7 +202,7 @@ import {
 	// ClickScrollPlugin
 } from 'overlayscrollbars';
 import {getHue, getStoredTheme, setHue, setTheme} from "../utils/setting-utils";
-import {pathsEqual, url} from "../utils/url-utils";
+import { syncPrimaryNavigation } from "../utils/navigation-ui.mjs";
 import {
 	BANNER_HEIGHT,
 	BANNER_HEIGHT_HOME,
@@ -373,6 +373,20 @@ function init() {
 /* Load settings when entering the site */
 init();
 
+const setupNavigationUi = () => {
+	syncPrimaryNavigation();
+	if (document.documentElement.dataset.navigationUiReady === 'true') return;
+	document.documentElement.dataset.navigationUiReady = 'true';
+	window.swup.hooks.on('page:view', () => syncPrimaryNavigation());
+}
+
+if (window?.swup?.hooks) {
+	setupNavigationUi()
+} else {
+	syncPrimaryNavigation()
+	document.addEventListener('swup:enable', setupNavigationUi, { once: true })
+}
+
 const setup = () => {
 	// TODO: temp solution to change the height of the banner
 /*
@@ -405,14 +419,6 @@ const setup = () => {
 	})
 	window.swup.hooks.on('content:replace', initCustomScrollbar)
 	window.swup.hooks.on('visit:start', (visit: {to: {url: string}}) => {
-		// change banner height immediately when a link is clicked
-		const bodyElement = document.querySelector('body')
-		if (pathsEqual(visit.to.url, url('/'))) {
-			bodyElement!.classList.add('lg:is-home');
-		} else {
-			bodyElement!.classList.remove('lg:is-home');
-		}
-
 		// increase the page height during page transition to prevent the scrolling animation from jumping
 		const heightExtend = document.getElementById('page-height-extend')
 		if (heightExtend) {
