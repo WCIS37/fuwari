@@ -271,9 +271,12 @@ function setClickOutsideToClose(panel: string, ignores: string[]) {
 		panelDom!.classList.add("float-panel-closed");
 	});
 }
-setClickOutsideToClose("display-setting", ["display-setting", "display-settings-switch"])
-setClickOutsideToClose("nav-menu-panel", ["nav-menu-panel", "nav-menu-switch"])
-setClickOutsideToClose("search-panel", ["search-panel", "search-bar", "search-switch"])
+if (document.documentElement.dataset.shellClickHandlersReady !== 'true') {
+	document.documentElement.dataset.shellClickHandlersReady = 'true'
+	setClickOutsideToClose("display-setting", ["display-setting", "display-settings-switch"])
+	setClickOutsideToClose("nav-menu-panel", ["nav-menu-panel", "nav-menu-switch"])
+	setClickOutsideToClose("search-panel", ["search-panel", "search-bar", "search-switch"])
+}
 
 
 function loadTheme() {
@@ -388,6 +391,8 @@ if (window?.swup?.hooks) {
 }
 
 const setup = () => {
+	if (document.documentElement.dataset.layoutHooksReady === 'true') return
+	document.documentElement.dataset.layoutHooksReady = 'true'
 	// TODO: temp solution to change the height of the banner
 /*
 	window.swup.hooks.on('animation:out:start', () => {
@@ -418,7 +423,7 @@ const setup = () => {
 		}
 	})
 	window.swup.hooks.on('content:replace', initCustomScrollbar)
-	window.swup.hooks.on('visit:start', (visit: {to: {url: string}}) => {
+	window.swup.hooks.on('visit:start', () => {
 		// increase the page height during page transition to prevent the scrolling animation from jumping
 		const heightExtend = document.getElementById('page-height-extend')
 		if (heightExtend) {
@@ -548,6 +553,8 @@ function createPhotoSwipe() {
 }
 
 const setup = () => {
+	if (document.documentElement.dataset.photoSwipeHooksReady === 'true') return
+	document.documentElement.dataset.photoSwipeHooksReady = 'true'
 	if (!lightbox) {
 		createPhotoSwipe()
 	}

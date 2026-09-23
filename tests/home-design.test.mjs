@@ -274,6 +274,20 @@ test("content navigation has a dedicated transition and reduced-motion fallback"
 	assert.match(reducedMotion, /transform:\s*none\s*!important/);
 });
 
+test("fixed-shell lifecycle hooks are registered only once", async () => {
+	const layout = await read("src/layouts/Layout.astro");
+	const mainGrid = await read("src/layouts/MainGridLayout.astro");
+
+	assert.match(layout, /dataset\.navigationUiReady/);
+	assert.equal((layout.match(/hooks\.on\('page:view', \(\) => syncPrimaryNavigation\(\)\)/g) ?? []).length, 1);
+	assert.match(layout, /dataset\.layoutHooksReady/);
+	assert.match(layout, /dataset\.photoSwipeHooksReady/);
+	assert.match(layout, /hooks\.on\('content:replace', initCustomScrollbar\)/);
+	assert.match(layout, /lightbox\?\.destroy\?\.\(\)/);
+	assert.match(mainGrid, /dataset\.motionReady === "true"/);
+	assert.equal((mainGrid.match(/addEventListener\("pointermove"/g) ?? []).length, 1);
+});
+
 test("home main content surround does not blur the background", async () => {
 	const styles = await read("src/styles/main.css");
 	const surroundRule = styles.match(/\[data-home-page="true"\] #main-grid::before \{[\s\S]*?\n\}/)?.[0] ?? "";
