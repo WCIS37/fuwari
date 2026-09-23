@@ -169,7 +169,6 @@ test("home masthead scroll progress is frame-smoothed without glyph re-rasteriza
 
 	assert.match(layout, /requestAnimationFrame\(renderScrollProgress\)/);
 	assert.match(layout, /currentProgress \+= \(targetProgress - currentProgress\) \* 0\.16/);
-	assert.match(layout, /cancelAnimationFrame\(scrollFrame\)/);
 	assert.doesNotMatch(copyRule, /rotate\(/);
 	assert.doesNotMatch(copyRule, /filter:\s*blur/);
 	assert.doesNotMatch(titleRule, /letter-spacing:\s*calc/);
@@ -185,12 +184,13 @@ test("reduced-motion users get a simple masthead fade", async () => {
 	assert.match(reducedMotion, /filter:\s*none\s*!important/);
 });
 
-test("home atmosphere motion is restored after Swup page navigation", async () => {
+test("persistent home atmosphere motion is initialized once outside Swup visits", async () => {
 	const layout = await read("src/layouts/MainGridLayout.astro");
 
-	assert.match(layout, /window\.swup\.hooks\.on\("page:view", setupHomeAtmosphere\)/);
-	assert.match(layout, /document\.addEventListener\("swup:enable", setupHomeMotionLifecycle/);
-	assert.match(layout, /delete atmosphere\.dataset\.motionReady/);
+	assert.match(layout, /atmosphere\.dataset\.motionReady === "true"/);
+	assert.match(layout, /setupHomeAtmosphere\(\)/);
+	assert.doesNotMatch(layout, /window\.swup\.hooks\.on\("page:view", setupHomeAtmosphere\)/);
+	assert.doesNotMatch(layout, /delete atmosphere\.dataset\.motionReady/);
 });
 
 test("home sidebar presents profile, categories, and tags as one journal panel", async () => {
@@ -238,7 +238,7 @@ test("home journal sidebar keeps content height and uses a subtle non-interactiv
 	assert.match(styles, /\.home-journal-leaf-emboss i/);
 });
 
-test("home navigation stays inside Swup while the complete page shell is replaced", async () => {
+test("Swup replaces content and toc while the home shell stays mounted", async () => {
 	const navbar = await read("src/components/Navbar.astro");
 	const config = await read("astro.config.mjs");
 	const layout = await read("src/layouts/MainGridLayout.astro");
@@ -247,8 +247,18 @@ test("home navigation stays inside Swup while the complete page shell is replace
 
 	assert.doesNotMatch(brandLink, /data-no-swup/);
 	assert.doesNotMatch(navLink, /data-no-swup/);
-	assert.match(config, /containers:\s*\["#page-shell",\s*"#toc"\]/);
-	assert.match(layout, /id="page-shell"/);
+	assert.match(config, /containers:\s*\["main",\s*"#toc"\]/);
+	assert.doesNotMatch(config, /containers:\s*\["#page-shell"/);
+	assert.match(layout, /<header id="home-atmosphere"/);
+	assert.doesNotMatch(layout, /\{isHomePage\s*&&\s*\(\s*<header id="home-atmosphere"/);
+	assert.doesNotMatch(layout, /id="page-shell"/);
+});
+
+test("native home links remain available when Swup cannot navigate", async () => {
+	const navbar = await read("src/components/Navbar.astro");
+
+	assert.match(navbar, /href=\{url\('\/'\)\}/);
+	assert.doesNotMatch(navbar, /data-no-swup/);
 });
 
 test("home main content surround does not blur the background", async () => {

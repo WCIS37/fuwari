@@ -3,16 +3,16 @@ import BackToTop from "@components/control/BackToTop.astro";
 import Footer from "@components/Footer.astro";
 import Navbar from "@components/Navbar.astro";
 import SideBar from "@components/widget/SideBar.astro";
+import homeAtmosphereBase from "@assets/images/home/atmosphere-base.png";
+import homeAtmosphereBaseNight from "@assets/images/home/atmosphere-base-night.png";
+import homeAtmosphereFoliage from "@assets/images/home/atmosphere-foliage.png";
+import homeAtmosphereFlow from "@assets/images/home/atmosphere-flow.png";
 import type { MarkdownHeading } from "astro";
 import { Icon } from "astro-icon/components";
 import ImageWrapper from "../components/misc/ImageWrapper.astro";
 import TOC from "../components/widget/TOC.astro";
 import { siteConfig } from "../config";
-import {
-	BANNER_HEIGHT,
-	BANNER_HEIGHT_EXTEND,
-	MAIN_PANEL_OVERLAPS_BANNER_HEIGHT,
-} from "../constants/constants";
+import { BANNER_HEIGHT_EXTEND } from "../constants/constants";
 import Layout from "./Layout.astro";
 
 interface Props {
@@ -35,21 +35,80 @@ const {
 const hasBannerCredit =
 	siteConfig.banner.enable && siteConfig.banner.credit.enable;
 const hasBannerLink = !!siteConfig.banner.credit.url;
-
-const mainPanelTop = siteConfig.banner.enable
-	? `calc(${BANNER_HEIGHT}vh - ${MAIN_PANEL_OVERLAPS_BANNER_HEIGHT}rem)`
-	: "5.5rem";
+const mainPanelTop = "15.5rem";
 ---
 
 <Layout title={title} banner={banner} description={description} lang={lang} setOGTypeArticle={setOGTypeArticle}>
 
 <!-- Navbar -->
 <slot slot="head" name="head"></slot>
-<div id="top-row" class="z-50 pointer-events-none relative transition-all duration-700 max-w-[var(--page-width)] px-0 md:px-4 mx-auto" class:list={[""]}>
+<div id="top-row" class="z-50 pointer-events-none relative transition-all duration-700 max-w-[var(--page-width)] px-0 md:px-4 mx-auto" class:list={[""]} data-home-nav="true">
     <div id="navbar-wrapper" class="pointer-events-auto sticky top-0 transition-all">
         <Navbar></Navbar>
     </div>
 </div>
+
+<header id="home-atmosphere" class="home-atmosphere" aria-labelledby="home-atmosphere-title">
+        <img class="home-atmosphere-base home-atmosphere-base-day" src={homeAtmosphereBase.src} alt="" aria-hidden="true" />
+        <img class="home-atmosphere-base home-atmosphere-base-night" src={homeAtmosphereBaseNight.src} alt="" aria-hidden="true" />
+        <img class="home-atmosphere-flow home-ribbon" src={homeAtmosphereFlow.src} alt="" aria-hidden="true" />
+        <div class="home-atmosphere-foliage-viewport" aria-hidden="true">
+            <img class="home-atmosphere-foliage" src={homeAtmosphereFoliage.src} alt="" />
+        </div>
+        <div class="home-atmosphere-copy">
+            <p class="home-atmosphere-kicker">A quiet place for ordinary days</p>
+            <h1 id="home-atmosphere-title">{siteConfig.title}</h1>
+        </div>
+    </header>
+
+<script>
+const setupHomeAtmosphere = () => {
+    const atmosphere = document.getElementById("home-atmosphere");
+    if (!atmosphere || atmosphere.dataset.motionReady === "true") return;
+    atmosphere.dataset.motionReady = "true";
+
+    const updatePointer = (event: PointerEvent) => {
+        const x = event.clientX / window.innerWidth - 0.5;
+        const y = event.clientY / window.innerHeight - 0.5;
+        atmosphere.style.setProperty("--home-pointer-x", x.toFixed(3));
+        atmosphere.style.setProperty("--home-pointer-y", y.toFixed(3));
+    };
+
+    let targetProgress = Math.min(window.scrollY / 220, 1);
+    let currentProgress = targetProgress;
+    let scrollFrame = 0;
+    atmosphere.style.setProperty("--home-scroll-progress", currentProgress.toFixed(5));
+
+    const renderScrollProgress = () => {
+        currentProgress += (targetProgress - currentProgress) * 0.16;
+        if (Math.abs(targetProgress - currentProgress) < 0.0005) {
+            currentProgress = targetProgress;
+        }
+        atmosphere.style.setProperty("--home-scroll-progress", currentProgress.toFixed(5));
+        if (currentProgress !== targetProgress) {
+            scrollFrame = requestAnimationFrame(renderScrollProgress);
+        } else {
+            scrollFrame = 0;
+        }
+    };
+
+    const updateScroll = () => {
+        targetProgress = Math.min(window.scrollY / 220, 1);
+        if (!scrollFrame) scrollFrame = requestAnimationFrame(renderScrollProgress);
+    };
+
+    const preventBackgroundCaret = (event: MouseEvent) => {
+        event.preventDefault();
+    };
+
+    window.addEventListener("pointermove", updatePointer, { passive: true });
+    window.addEventListener("scroll", updateScroll, { passive: true });
+    atmosphere.addEventListener("mousedown", preventBackgroundCaret);
+    updateScroll();
+};
+
+setupHomeAtmosphere();
+</script>
 
 <!-- Banner -->
 {siteConfig.banner.enable && <div id="banner-wrapper" class={`absolute z-10 w-full transition duration-700 overflow-hidden`} style={`top: -${BANNER_HEIGHT_EXTEND}vh`}>
@@ -60,7 +119,7 @@ const mainPanelTop = siteConfig.banner.enable
 </div>}
 
 <!-- Main content -->
-<div class="absolute w-full z-30 pointer-events-none" style={`top: ${mainPanelTop}`}>
+<div class="absolute w-full z-30 pointer-events-none" style={`top: ${mainPanelTop}`} data-home-page="true">
     <!-- The pointer-events-none here prevent blocking the click event of the TOC -->
     <div class="relative max-w-[var(--page-width)] mx-auto pointer-events-auto">
         <div id="main-grid" class="transition duration-700 w-full left-0 right-0 grid grid-cols-[17.5rem_auto] grid-rows-[auto_1fr_auto] lg:grid-rows-[auto]
