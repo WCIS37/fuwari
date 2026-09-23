@@ -1,9 +1,21 @@
-# About
-This is the demo site for [Fuwari](https://github.com/saicaca/fuwari).
+# 关于我
 
-::github{repo="saicaca/fuwari"}
+你好，我是 **Mineroid**，欢迎来到我的个人博客 Minerhut。
 
-> ### Sources of images used in this site
-> - [Unsplash](https://unsplash.com/)
-> - [星と少女](https://www.pixiv.net/artworks/108916539) by [Stella](https://www.pixiv.net/users/93273965)
-> - [Rabbit - v1.4 Showcase](https://civitai.com/posts/586908) by [Rabbit_YourMajesty](https://civitai.com/user/Rabbit_YourMajesty)
+这里主要记录我在编程、服务器、游戏和日常生活中遇到的事情。我希望把学习过程中的经验、踩过的坑以及值得保存的内容整理下来，也希望这些内容能够帮助到其他人。
+
+## 联系我
+
+你可以通过以下方式找到我：
+
+- [GitHub](https://github.com/WCIS37)
+
+:::note
+博客仍在持续完善中。如果页面出现问题，欢迎通过 GitHub 联系我。
+:::
+
+## 版权说明
+
+除特别说明外，本站原创文章采用
+[CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/)
+许可协议。
