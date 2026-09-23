@@ -264,14 +264,22 @@ test("native home links remain available when Swup cannot navigate", async () =>
 test("content navigation has a dedicated transition and reduced-motion fallback", async () => {
 	const layout = await read("src/layouts/MainGridLayout.astro");
 	const transitions = await read("src/styles/transition.css");
+	const toc = await read("src/components/widget/TOC.astro");
 
 	assert.match(layout, /transition-swup-content/);
 	assert.match(layout, /id="route-progress"/);
 	assert.match(transitions, /\.transition-swup-content/);
 	assert.match(transitions, /html\.is-changing[\s\S]*?route-progress/);
-	const reducedMotion = transitions.match(/@media \(prefers-reduced-motion: reduce\) \{[\s\S]*?\n\}/)?.[0] ?? "";
+	assert.match(transitions, /html\.is-animating \.transition-swup-content/);
+	assert.match(transitions, /html\.is-rendering\.is-animating \.transition-swup-content/);
+	assert.doesNotMatch(transitions, /html\.is-changing \.transition-swup-content\s*\{[^}]*opacity:\s*0/);
+	const reducedMotion = transitions.slice(transitions.indexOf("@media (prefers-reduced-motion: reduce)"));
 	assert.match(reducedMotion, /\.transition-swup-content/);
+	assert.match(reducedMotion, /\.transition-swup-fade/);
+	assert.match(reducedMotion, /\.onload-animation/);
 	assert.match(reducedMotion, /transform:\s*none\s*!important/);
+	assert.match(reducedMotion, /animation:\s*none\s*!important/);
+	assert.match(toc, /matchMedia\("\(prefers-reduced-motion: reduce\)"\)/);
 });
 
 test("fixed-shell lifecycle hooks are registered only once", async () => {

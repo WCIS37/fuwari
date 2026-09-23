@@ -203,6 +203,10 @@ class TableOfContents extends HTMLElement {
     connectedCallback() {
         // wait for the onload animation to finish, which makes the `getBoundingClientRect` return correct values
         const element = document.querySelector('.prose');
+		if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+			this.init();
+			return;
+		}
         if (element) {
             element.addEventListener('animationend', () => {
                 this.init();

@@ -12,12 +12,12 @@ html.is-animating .transition-swup-fade {
     transition: opacity 280ms ease, transform 280ms cubic-bezier(.22, 1, .36, 1);
 }
 
-html.is-changing .transition-swup-content {
+html.is-animating .transition-swup-content {
     opacity: 0;
     transform: translate3d(-0.75rem, -0.35rem, 0);
 }
 
-html.is-rendering .transition-swup-content {
+html.is-rendering.is-animating .transition-swup-content {
     transform: translate3d(0.75rem, 0.35rem, 0);
 }
 
@@ -47,9 +47,16 @@ html.is-rendering #route-progress {
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .transition-swup-content {
+    .transition-swup-content,
+    .transition-swup-fade {
         transform: none !important;
         transition-duration: 80ms;
+    }
+
+    .onload-animation {
+        opacity: 1 !important;
+        transform: none !important;
+        animation: none !important;
     }
 
     #route-progress {
