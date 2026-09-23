@@ -282,6 +282,35 @@ test("content navigation has a dedicated transition and reduced-motion fallback"
 	assert.match(toc, /matchMedia\("\(prefers-reduced-motion: reduce\)"\)/);
 });
 
+test("top overscroll keeps the navigation anchored without exposing a white cap", async () => {
+	const layout = await read("src/layouts/MainGridLayout.astro");
+	const navbar = await read("src/components/Navbar.astro");
+	const styles = await read("src/styles/main.css");
+	const markdown = await read("src/styles/markdown.css");
+
+	assert.match(layout, /id="top-row"[^>]*class="[^"]*fixed[^"]*top-0[^"]*left-0[^"]*right-0/);
+	assert.doesNotMatch(layout, /id="navbar-wrapper"[^>]*sticky/);
+	assert.doesNotMatch(navbar, /-top-8 bg-\[var\(--card-bg\)\]/);
+	assert.match(styles, /html,\s*body\s*\{[^}]*overscroll-behavior-y:\s*none/s);
+	assert.match(styles, /html\s*\{[^}]*scroll-padding-top:\s*5\.5rem/s);
+	assert.match(markdown, /h1\[id\][\s\S]*?scroll-margin-top:\s*5\.5rem/);
+});
+
+test("content navigation uses a motion-safe wave reveal instead of directional sliding", async () => {
+	const transitions = await read("src/styles/transition.css");
+	const contentRule = transitions.match(/\.transition-swup-content \{[\s\S]*?\n\}/)?.[0] ?? "";
+	const leavingRule = transitions.match(/html\.is-animating \.transition-swup-content \{[\s\S]*?\n\}/)?.[0] ?? "";
+	const reducedMotion = transitions.slice(transitions.indexOf("@media (prefers-reduced-motion: reduce)"));
+
+	assert.match(contentRule, /position:\s*relative/);
+	assert.match(transitions, /\.transition-swup-content::before/);
+	assert.match(transitions, /@keyframes route-wave-reveal/);
+	assert.match(transitions, /html\.is-changing \.transition-swup-content::before/);
+	assert.match(leavingRule, /scale\(0\.992\)/);
+	assert.doesNotMatch(leavingRule, /translate3d/);
+	assert.match(reducedMotion, /\.transition-swup-content::before[\s\S]*?animation:\s*none\s*!important/);
+});
+
 test("fixed-shell lifecycle hooks are registered only once", async () => {
 	const layout = await read("src/layouts/Layout.astro");
 	const mainGrid = await read("src/layouts/MainGridLayout.astro");

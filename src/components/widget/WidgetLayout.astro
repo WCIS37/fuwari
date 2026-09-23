@@ -13,11 +13,19 @@ interface Props {
 }
 const { id, name, isCollapsed, collapsedHeight, style } = Astro.props;
 const className = Astro.props.class;
+const sectionIcon = id === "categories"
+    ? "material-symbols:menu-book-outline-rounded"
+    : id === "tags"
+        ? "material-symbols:label-outline-rounded"
+        : undefined;
 ---
 <widget-layout data-id={id} data-is-collapsed={String(isCollapsed)} class={"pb-4 card-base " + className} style={style}>
     <div class="font-bold transition text-lg text-neutral-900 dark:text-neutral-100 relative ml-8 mt-4 mb-2
         before:w-1 before:h-4 before:rounded-md before:bg-[var(--primary)]
-        before:absolute before:left-[-16px] before:top-[5.5px]">{name}</div>
+        before:absolute before:left-[-16px] before:top-[5.5px]">
+        {sectionIcon && <Icon name={sectionIcon} class="home-journal-section-icon" />}
+        {name}
+    </div>
     <div id={id} class:list={["collapse-wrapper px-4 overflow-hidden", {"collapsed": isCollapsed}]}>
         <slot></slot>
     </div>

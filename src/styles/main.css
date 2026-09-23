@@ -1,5 +1,14 @@
 @tailwind components;
 
+html {
+    scroll-padding-top: 5.5rem;
+}
+
+html,
+body {
+    overscroll-behavior-y: none;
+}
+
 [data-primary-route][aria-current="page"] {
 	color: var(--primary);
 	background: var(--btn-plain-bg-hover);
